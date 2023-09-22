@@ -61,6 +61,25 @@ class Product(models.Model):
         verbose_name_plural = 'products'
 
 
+class Comment(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='comments')
+    body = models.CharField(max_length=128)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+    is_banned = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created']
+        indexes = [
+            models.Index(fields=['created']),
+        ]
+
+    def str(self):
+        return f"{self.user.name} | {self.product.name}"
+
+
 class Saved(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='saved')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='saved')

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product, City, District, Ban, Banned
+from .models import Category, Product, Comment, City, District, Ban, Banned
 
 
 
@@ -16,6 +16,14 @@ class ProductAdmin(admin.ModelAdmin):
                     'is_deleted']
     prepopulated_fields = {'slug': ('name',)}
     list_editable = ['is_active', 'is_banned', 'is_deleted']
+
+
+@admin.register(Comment)
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product', 'created', 'is_active', 'is_banned']
+    list_filter = ['is_active', 'created']
+    search_fields = ['user', 'body']
 
 
 @admin.register(City)
