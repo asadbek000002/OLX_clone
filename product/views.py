@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
-from .models import City, District, Product
-from .serializers  import ProductSerializer
+from .models import City, District, Product, Comment
+from .serializers  import ProductSerializer, CommentSerializer, CommentCreateSerializer
 
 from .models import Category
 
@@ -78,5 +78,35 @@ class ProductCreateAPIView(generics.CreateAPIView):
 
 
 
+class CommentList(generics.ListAPIView):
+    queryset = Comment.objects.filter(is_active=True, is_banned=False)
+    serializer_class = CommentSerializer
 
+    lookup_field = 'pk'
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        
+        queryset = queryset.filter(**filter_kwargs)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class CommentCreateAPIView(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentCreateSerializer
+    
+    def create(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception = True)
+            serializer.save(user=self.request.user)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 

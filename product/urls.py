@@ -12,5 +12,6 @@ urlpatterns = [
     path('product-list/',ProductViewSet.as_view() ),
     path('product-delete/<int:id>/', ProductDestroyAPIView.as_view()),
     path('product-update/<pk>/', ProductUpdateAPIView.as_view()),
+    path('comment/<pk>/', CommentList.as_view()),
     
 ]
