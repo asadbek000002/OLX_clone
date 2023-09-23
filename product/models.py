@@ -1,20 +1,28 @@
 from django.db import models
+from django.template.defaultfilters import slugify
+from django.utils.translation import gettext as _
+from .managers import CommentManager
 
 from accounts.models import CustomUser
 
 
 class Category(models.Model):
+
     name = models.CharField(max_length=250, unique=True)
     slug = models.SlugField(max_length=250, unique=True)
     image = models.ImageField(upload_to='category/images')
     is_active = models.BooleanField(default=True)
-    parent = models.ForeignKey('self', related_name='childs', on_delete=models.PROTECT)
+    parent = models.ForeignKey('self', related_name='childs', on_delete=models.PROTECT, blank=True, null=True)
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='categories', blank=True, null=True)
 
     class Meta:
         ordering = ['name',]
         verbose_name = 'category'
         verbose_name_plural = 'categories'
+        
+    def save(self, *args, **kwargs):
+        self.name = ' '.join(self.name.strip().split())
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -59,6 +67,25 @@ class Product(models.Model):
         ordering = ['name',]
         verbose_name = 'product'
         verbose_name_plural = 'products'
+
+
+class Comment(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='comments')
+    body = models.CharField(max_length=128)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+    is_banned = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created']
+        indexes = [
+            models.Index(fields=['created']),
+        ]
+
+    def str(self):
+        return f"{self.user.name} | {self.product.name}"
 
 
 class Saved(models.Model):
