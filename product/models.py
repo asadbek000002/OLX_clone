@@ -1,7 +1,5 @@
 from django.db import models
-from django.template.defaultfilters import slugify
-from django.utils.translation import gettext as _
-from .managers import CommentManager
+
 
 from accounts.models import CustomUser
 
