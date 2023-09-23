@@ -1,8 +1,10 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework import status
-from .models import City, District, Product, Comment
-from .serializers  import ProductSerializer, CommentSerializer, CommentCreateSerializer
+
+from .models import City, District, Product, Saved, Comment
+from .serializers  import ProductSerializer, SavedSerializer, CommentSerializer, CommentCreateSerializer
+
 
 from .models import Category
 
@@ -77,7 +79,6 @@ class ProductCreateAPIView(generics.CreateAPIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class CommentList(generics.ListAPIView):
     queryset = Comment.objects.filter(is_active=True, is_banned=False)
     serializer_class = CommentSerializer
@@ -109,4 +110,38 @@ class CommentCreateAPIView(generics.CreateAPIView):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class SavedAPIView(generics.CreateAPIView):
+    serializer_class = SavedSerializer
+    def post(self, request):
+        data = request.data
+
+        product = Product.objects.all(user=request.user)
+        data['product'] = product.pk
+        serializer = SavedSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            
+
+
+class SavedListView(generics.ListAPIView):
+    queryset = Saved.objects.all()
+    serializer_class = SavedSerializer
+
+
+
+class SavedDeleteView(generics.DestroyAPIView):
+    queryset = Saved.objects.all()
+    serializer_class = SavedSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if self.request.user.is_authenticated:
+            if instance.user == self.request.user:
+                instance.save()
+        return Response(status= status.HTTP_204_NO_CONTENT)
+
 
