@@ -3,7 +3,6 @@ from django.contrib import admin
 from .models import Category, Product, Comment, City, District, Ban, Banned
 
 
-
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug']
@@ -19,7 +18,6 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 @admin.register(Comment)
-
 class CommentAdmin(admin.ModelAdmin):
     list_display = ['user', 'product', 'created', 'is_active', 'is_banned']
     list_filter = ['is_active', 'created']
