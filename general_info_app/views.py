@@ -21,5 +21,5 @@ class SocialnetworkDetail(generics.ListAPIView):
 
 
 class FaqsList(generics.ListAPIView):
-    model = Faqs
+    queryset = Faqs.objects.all()
     serializer_class = FaqsSerializer
