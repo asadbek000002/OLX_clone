@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import City, District, Product
 from .serializers  import ProductSerializer
+from .serializers import CitySerializer, DistrictSerializer
 
 from .models import Category
 
@@ -77,6 +78,26 @@ class ProductCreateAPIView(generics.CreateAPIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+class CityViewSet(generics.ListAPIView):
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
+    
 
+class DistrictViewSet(generics.ListAPIView):
+    queryset = District.objects.all()
+    serializer_class = DistrictSerializer
+    
+    lookup_field = 'pk'
 
+    def list(self, request, *args, **kwargs):
+        
+        queryset = self.queryset
 
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        
+        queryset = queryset.filter(**filter_kwargs)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
