@@ -1,10 +1,9 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework import status
-from .models import City, District, Product
-from .serializers  import ProductSerializer
-from .serializers import CitySerializer, DistrictSerializer
 
+from .models import City, District, Product, Saved
+from .serializers  import ProductSerializer, SavedSerializer, CitySerializer, DistrictSerializer
 from .models import Category
 
 
@@ -93,6 +92,7 @@ class DistrictViewSet(generics.ListAPIView):
         
         queryset = self.queryset
 
+
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         
         filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
@@ -101,3 +101,36 @@ class DistrictViewSet(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class SavedListView(generics.ListAPIView):
+    queryset = Saved.objects.all()
+    serializer_class = SavedSerializer
+
+
+class SavedDeleteView(generics.DestroyAPIView):
+    queryset = Saved.objects.all()
+    serializer_class = SavedSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if self.request.user.is_authenticated:
+            if instance.user == self.request.user:
+                instance.save()
+        return Response(status= status.HTTP_204_NO_CONTENT)
+
+
+
+class SavedAPIView(generics.CreateAPIView):
+    serializer_class = SavedSerializer
+    def post(self, request):
+        data = request.data
+
+        product = Product.objects.all(user=request.user)
+        data['product'] = product.pk
+        serializer = SavedSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
