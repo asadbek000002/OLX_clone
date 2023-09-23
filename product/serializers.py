@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from .models import City, District
 
-from .models import Category, Product
+from .models import Category, Product, Saved, Comment
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,3 +15,33 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+
+        
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+        
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('product', 'body')
+
+
+class SavedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Saved
+        fields = ('id', 'user', 'product', 'created_at')
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = '__all__'
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = '__all__'
+

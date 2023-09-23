@@ -12,5 +12,14 @@ urlpatterns = [
     path('product-list/',ProductViewSet.as_view() ),
     path('product-delete/<int:id>/', ProductDestroyAPIView.as_view()),
     path('product-update/<pk>/', ProductUpdateAPIView.as_view()),
+    path('cities/', CityViewSet.as_view(), name='cities'),
+    path('district/<pk>/', DistrictViewSet.as_view(), name='districts'),
+    path('comment/<pk>/', CommentList.as_view()),
+    path('comment-create/<pk>/', CommentCreateAPIView.as_view()),
+    path('saved/', SavedAPIView.as_view(), name='saved'),
+    path('saved/delete/<int:id>/', SavedDeleteView.as_view(), name='delete'),
+    path('saved/list/', SavedListView.as_view (), name='list'),
     
 ]
+
+
