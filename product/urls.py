@@ -15,5 +15,6 @@ urlpatterns = [
     path('cities/', CityViewSet.as_view(), name='cities'),
     path('district/<pk>/', DistrictViewSet.as_view(), name='districts'),
     path('comment/<pk>/', CommentList.as_view()),
+    path('comment-create/<pk>/', CommentCreateAPIView.as_view()),
 ]
 
