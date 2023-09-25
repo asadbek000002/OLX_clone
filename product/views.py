@@ -1,10 +1,14 @@
 from rest_framework import generics, status
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import serializers
+from rest_framework import permissions
+from accounts.models import CustomUser
+from .models import Category, City, District, Product, Saved, Comment, Ban, Banned
+from .serializers import ProductSerializer, SavedSerializer, CitySerializer,\
+                          DistrictSerializer, CommentSerializer, CommentCreateSerializer, BanSerializer, BanedSerializer
 
-from .models import City, District, Product, Saved, Comment
-from .serializers  import ProductSerializer, SavedSerializer, CitySerializer, DistrictSerializer, CommentSerializer, CommentCreateSerializer
-from .models import Category
 
 
 from .serializers import CategorySerializer
@@ -150,11 +154,12 @@ class SavedDeleteView(generics.DestroyAPIView):
         if self.request.user.is_authenticated:
             if instance.user == self.request.user:
                 instance.save()
-        return Response(status= status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SavedAPIView(generics.CreateAPIView):
     serializer_class = SavedSerializer
+
     def post(self, request):
         data = request.data
 
@@ -166,3 +171,19 @@ class SavedAPIView(generics.CreateAPIView):
             return Response(serializer.data, status = status.HTTP_200_OK)
         
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+
+class BanViewList(generics.ListAPIView):
+    queryset = Ban.objects.all()
+    serializer_class = BanSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+
+class BanCreate(generics.CreateAPIView):
+    queryset = Banned.objects.all()
+    serializer_class = BanedSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+
+
+

@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import path
 
 from .views import * 
 
@@ -10,6 +10,7 @@ urlpatterns = [
     path('category/sub-category/<pk>/', CategoryListAPIView.as_view()),
     path('product-create',ProductCreateAPIView.as_view() ),
     path('product-list/',ProductViewSet.as_view() ),
+    path('product-list/<pk>/',ProductViewSet.as_view() ),
     path('product-delete/<int:id>/', ProductDestroyAPIView.as_view()),
     path('product-update/<pk>/', ProductUpdateAPIView.as_view()),
     path('cities/', CityViewSet.as_view(), name='cities'),
@@ -19,6 +20,8 @@ urlpatterns = [
     path('saved/', SavedAPIView.as_view(), name='saved'),
     path('saved/delete/<int:id>/', SavedDeleteView.as_view(), name='delete'),
     path('saved/list/', SavedListView.as_view (), name='list'),
+    path('ban-list/', BanViewList.as_view()),
+    path('ban-add/', BanCreate.as_view())
     
 ]
 
