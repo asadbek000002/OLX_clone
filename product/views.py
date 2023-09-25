@@ -184,6 +184,15 @@ class BanCreate(generics.CreateAPIView):
     serializer_class = BanedSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
