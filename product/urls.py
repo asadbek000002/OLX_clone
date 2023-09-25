@@ -8,10 +8,11 @@ app_name = "categories"
 urlpatterns = [
     path('category/', CategoryList.as_view()),
     path('category/sub-category/<pk>/', CategoryListAPIView.as_view()),
-    path('product-create',ProductCreateAPIView.as_view() ),
+    path('product-create/',ProductCreateAPIView.as_view() ),
     path('product-list/',ProductViewSet.as_view() ),
-    path('product-list/<pk>/',ProductViewSet.as_view() ),
+    path('product-list/',ProductViewSet.as_view() ),
     path('product-delete/<int:id>/', ProductDestroyAPIView.as_view()),
+    path('product-delete/<pk>/', ProductDestroyAPIView.as_view()),
     path('product-update/<pk>/', ProductUpdateAPIView.as_view()),
     path('cities/', CityViewSet.as_view(), name='cities'),
     path('district/<pk>/', DistrictViewSet.as_view(), name='districts'),
@@ -21,7 +22,7 @@ urlpatterns = [
     path('saved/delete/<int:id>/', SavedDeleteView.as_view(), name='delete'),
     path('saved/list/', SavedListView.as_view (), name='list'),
     path('ban-list/', BanViewList.as_view()),
-    path('ban-add/', BanCreate.as_view())
+    path('ban-add/', BanCreate.as_view()),
     
 ]
 
