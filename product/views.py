@@ -189,10 +189,21 @@ class BanCreate(generics.CreateAPIView):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            # ban.set_product(
+            #         serializer.cleaned_data['product'])
+            # product_id = ban
+            # ban_count = Ban.objects.filter(product__id=product_id).count()
+            # if ban_count >= 10:
+            #     product = Ban.objects.get(product__id=product_id)
+            #     product.is_banned = True
+            #     product.save()
+            #     raise serializers.ValidationError("Product has been banned more than 10 times.")
+            # else:
+            #     return ban
+
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
 
 
 

@@ -60,3 +60,4 @@ class BanedSerializer(serializers.ModelSerializer):
         model = Banned
         fields = ['comment', 'ban', 'product', 'user']
 
+
