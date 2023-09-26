@@ -28,11 +28,7 @@ class UserEditSerializer(serializers.ModelSerializer):
     profile = ProfileEditSerializer(many=False)
     class Meta:
         model = CustomUser
-        exclude = [
-            'is_staff', 'is_active', 'date_joined', 'custom_id', 
-            'is_worker', 'is_company', 'is_deleted', 'password',
-            'is_superuser', 'groups', 'user_permissions'
-        ]
+        fields = ('email', 'image', 'first_name', 'last_name', 'profile')
     
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile')
@@ -49,4 +45,10 @@ class UserEditSerializer(serializers.ModelSerializer):
                 profile_serializer.update(profile_db, profile_data)
         return instance
 
+
+class UserRetriveSerializer(serializers.ModelSerializer):
+    profile = ProfileEditSerializer(many=False)
+    class Meta:
+        model = CustomUser
+        fields = ('email', 'image', 'first_name', 'last_name', 'profile')
 

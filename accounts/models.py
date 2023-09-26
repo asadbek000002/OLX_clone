@@ -1,12 +1,43 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import FileExtensionValidator
 from uuid import uuid4
 
 from .services import get_path_upload_avatar, validate_size_image
 
+# https://abhik-b.medium.com/step-by-step-guide-to-email-social-logins-in-django-5e5436e20591
+
+class CustomUserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, phone, password, **extra_fields):
+        if not phone:
+            raise ValueError('Users require an phone field')
+        user = self.model(phone=phone, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, phone, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(phone, password, **extra_fields)
+
+    def create_superuser(self, phone, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(phone, password, **extra_fields)
+
+
 
 class CustomUser(AbstractUser):
+    username = None
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=14, unique=True)
     image = models.ImageField(
@@ -21,6 +52,8 @@ class CustomUser(AbstractUser):
     updated = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "phone"
+    objects = CustomUserManager()
+    
     def __str__(self):
         if self.get_full_name():
             return f"{self.get_full_name()}"

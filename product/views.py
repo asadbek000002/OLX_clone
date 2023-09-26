@@ -40,6 +40,11 @@ class CategoryListAPIView(generics.ListAPIView):
 class ProductViewSet(generics.ListAPIView):
     queryset = Product.objects.filter(is_deleted=False, is_active=True)
     serializer_class = ProductSerializer
+    
+class ProductDetailAPIView(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'pk'
 
 class ProductDestroyAPIView(generics.DestroyAPIView):
     queryset = Product.objects.all()
