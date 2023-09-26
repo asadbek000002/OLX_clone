@@ -1,5 +1,5 @@
 from django.db import models
-
+from service import get_path_upload_avatar
 
 from accounts.models import CustomUser
 
@@ -8,7 +8,7 @@ class Category(models.Model):
 
     name = models.CharField(max_length=250, unique=True)
     slug = models.SlugField(max_length=250, unique=True)
-    image = models.ImageField(upload_to='category/images')
+    image = models.ImageField(upload_to=get_path_upload_avatar)
     is_active = models.BooleanField(default=True)
     parent = models.ForeignKey('self', related_name='childs', on_delete=models.PROTECT, blank=True, null=True)
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='categories', blank=True, null=True)
@@ -20,7 +20,7 @@ class Category(models.Model):
         
     def save(self, *args, **kwargs):
         self.name = ' '.join(self.name.strip().split())
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
