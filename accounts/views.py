@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import CustomUser, Profile
 from uuid import uuid4
-from .serializers import RegisterSerializer, ProfileEditSerializer, UserEditSerializer
+from .serializers import RegisterSerializer, ProfileEditSerializer, UserEditSerializer, UserRetriveSerializer
 from rest_framework import (
     generics, 
     permissions,
@@ -33,6 +33,7 @@ class UserRegisterView(generics.CreateAPIView):
 
 class UserRetrieveAPIView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.filter(is_active=True, is_deleted=False)
+    serializer_class = UserRetriveSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
