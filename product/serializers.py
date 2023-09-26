@@ -58,6 +58,6 @@ class BanSerializer(serializers.ModelSerializer):
 class BanedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banned
-        fields = ['comment', 'ban', 'product', 'user']
+        fields = ['comment', 'ban', 'product']
 
 
