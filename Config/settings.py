@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'product',
     'general_info_app',
     #oauth
+
     'oauth2_provider',
     'social_django',
     'drf_social_oauth2',

@@ -23,3 +23,6 @@ class SocialnetworkDetail(generics.ListAPIView):
 class FaqsList(generics.ListAPIView):
     queryset = Faqs.objects.all()
     serializer_class = FaqsSerializer
+
+
+
