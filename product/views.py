@@ -1,18 +1,19 @@
-from rest_framework import generics, status
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
+
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import permissions
+
 from accounts.models import CustomUser
+
 from .models import Category, City, District, Product, Saved, Comment, Ban, Banned
+
 from .serializers import ProductSerializer, SavedSerializer, CitySerializer,\
                           DistrictSerializer, CommentSerializer, CommentCreateSerializer, BanSerializer, BanedSerializer
-
-
-
-
 from .serializers import CategorySerializer
 
 
@@ -57,14 +58,27 @@ class ProductPagination(PageNumberPagination):
 
     
 class ProductViewSet(generics.ListAPIView):
+    
     queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
     serializer_class = ProductSerializer
     pagination_class = ProductPagination 
 
+    
+
 class ProductDetailAPIView(generics.RetrieveAPIView):
-    queryset = Product.objects.all()
+    queryset = Product.objects.filter(is_deleted=False, is_active=True)
     serializer_class = ProductSerializer
     lookup_field = 'pk'
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        post_tags_ids = instance.tags.values_list('id', flat=True)
+        similar_posts = self.queryset.filter(tags__in=post_tags_ids, category=instance.category).exclude(id=instance.id)
+        similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags')[:10]
+        serializer1 = self.get_serializer(similar_posts, many=True)
+        return Response({"detail": serializer.data, "same_prods": serializer1.data})
+    
 
 class ProductDestroyAPIView(generics.DestroyAPIView):
     queryset = Product.objects.all()
