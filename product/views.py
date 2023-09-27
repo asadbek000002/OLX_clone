@@ -45,10 +45,19 @@ class CategoryListAPIView(generics.ListAPIView):
 class ProductPagination(PageNumberPagination):
     page_size=2
     page_size_query_param = 'page_size'
+    def get_paginated_response(self, data):
+        return Response({
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'count': self.page.paginator.count,
+            'total_pages': self.page.paginator.num_pages,
+            'showing_count': self.page_size,
+            'results': data
+        })
 
     
 class ProductViewSet(generics.ListAPIView):
-    queryset = Product.objects.filter(is_deleted=False, is_active=True)
+    queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
     serializer_class = ProductSerializer
     pagination_class = ProductPagination 
 
