@@ -24,10 +24,12 @@ class UserRegisterView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        user = CustomUser(username=str(uuid4())[-12:])
+        user = CustomUser()
         for key, value in serializer.validated_data.items():
             setattr(user, key, value)
+        user.set_password(serializer.validated_data['password'])
         user.save()
+        
 
 
 
