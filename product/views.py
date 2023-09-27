@@ -13,9 +13,11 @@ from .serializers import ProductSerializer, SavedSerializer, CitySerializer,\
 
 from .serializers import CategorySerializer
 
+
 class CategoryList(generics.ListAPIView):
     queryset = Category.objects.filter(parent__isnull=True)
     serializer_class = CategorySerializer
+
 
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.filter(parent__isnull=False).prefetch_related('childs', 'childs__childs')

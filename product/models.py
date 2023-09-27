@@ -19,7 +19,7 @@ class Category(models.Model):
         
     def save(self, *args, **kwargs):
         self.name = ' '.join(self.name.strip().split())
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
