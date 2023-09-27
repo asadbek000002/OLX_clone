@@ -13,9 +13,8 @@ from .services import  validate_phone
 # from django.db.models import Q
 
 class RegisterSerializer(serializers.Serializer):
-    password = serializers.CharField(write_only=True)
     phone = serializers.CharField(validators = [validate_phone])
-    is_staff = serializers.BooleanField(default=False)
+    password = serializers.CharField(write_only=True)
 
 
 class ProfileEditSerializer(serializers.ModelSerializer):

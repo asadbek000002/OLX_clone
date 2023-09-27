@@ -57,7 +57,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         if self.get_full_name():
             return f"{self.get_full_name()}"
-        return f'{self.email}'
+        return f'{self.phone}'
     
 
     def save(self, *args, **kwargs):
