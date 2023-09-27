@@ -49,7 +49,7 @@ class Product(models.Model):
     slug = models.SlugField(unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='category')
     description = models.CharField(max_length=1000)
-    image = models.ImageField(upload_to='products/images')
+    image = models.ImageField(upload_to='products/images', blank=True, null= True)
     location = models.ForeignKey(District, on_delete=models.PROTECT)
     price = models.IntegerField()
     views_count = models.IntegerField(default=0, blank=True)
