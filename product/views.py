@@ -3,11 +3,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import permissions
 from accounts.models import CustomUser
 from .models import Category, City, District, Product, Saved, Comment, Ban, Banned
 from .serializers import ProductSerializer, SavedSerializer, CitySerializer,\
                           DistrictSerializer, CommentSerializer, CommentCreateSerializer, BanSerializer, BanedSerializer
+
 
 
 
@@ -37,10 +39,17 @@ class CategoryListAPIView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+# Pagination 
+class ProductPagination(PageNumberPagination):
+    page_size=2
+    page_size_query_param = 'page_size'
+
+    
 class ProductViewSet(generics.ListAPIView):
     queryset = Product.objects.filter(is_deleted=False, is_active=True)
     serializer_class = ProductSerializer
-    
+    pagination_class = ProductPagination 
+
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
