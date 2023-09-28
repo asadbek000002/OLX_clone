@@ -56,6 +56,7 @@ class Product(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name='products')
     is_active = models.BooleanField()
     is_banned = models.BooleanField()
+    status = models.BooleanField(default=True)
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)

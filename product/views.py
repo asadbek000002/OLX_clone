@@ -1,12 +1,14 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import permissions
+from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.models import CustomUser
 
@@ -62,6 +64,14 @@ class ProductViewSet(generics.ListAPIView):
     queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
     serializer_class = ProductSerializer
     pagination_class = ProductPagination 
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = {
+        'category': ['exact'],
+        'price':['exact', 'gt', 'gte', 'lt', 'lte'], 
+        'name': ['icontains', 'exact'], 
+        'status': ['exact'],
+    }
+    
 
     
 
