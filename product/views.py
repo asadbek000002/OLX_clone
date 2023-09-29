@@ -72,7 +72,31 @@ class ProductViewSet(generics.ListAPIView):
         'status': ['exact'],
     }
     
+class ProductUserListAPIView(generics.ListAPIView):
+    queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
+    serializer_class = ProductSerializer
+    pagination_class = ProductPagination 
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = {
+        'category': ['exact'],
+        'price':['exact', 'gt', 'gte', 'lt', 'lte'], 
+        'name': ['icontains', 'exact'], 
+        'status': ['exact'],
+    }
+    
+    def list(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            queryset = self.filter_queryset(self.get_queryset())
+            queryset=queryset.filter(user=self.request.user)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
 
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
