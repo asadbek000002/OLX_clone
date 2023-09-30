@@ -51,3 +51,19 @@ class UserRetriveSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('email', 'image', 'first_name', 'last_name', 'profile')
 
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = '__all__'
+        
+class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'phone','image', 'profile']
+        extra_kwargs = {
+            'phone': {'read_only': True}
+        }
+
