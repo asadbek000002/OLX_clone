@@ -251,28 +251,6 @@ class BanViewList(generics.ListAPIView):
     serializer_class = BanSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
-#
-# class BanCreate(generics.CreateAPIView):
-#     queryset = Banned.objects.all()
-#     serializer_class = BanedSerializer
-#     # permission_classes = [permissions.IsAuthenticated]
-#
-#     def create(self, request, *args, **kwargs):
-#         if self.request.user.is_authenticated:
-#             serializer = self.get_serializer(data=request.data)
-#             serializer.is_valid(raise_exception=True)
-#             serializer.save(user=self.request.user)
-#             validated_data = serializer.validated_data.get('product')
-#             product_id = validated_data
-#             ban_count = Ban.objects.filter(product__id=product_id).count()
-#             if ban_count >= 10:
-#                 product = Product.objects.get(id=product_id)
-#                 product.is_banned = True
-#                 product.save()
-#             headers = self.get_success_headers(serializer.data)
-#             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-#         return Response(status=status.HTTP_400_BAD_REQUEST)
-
 
 class BanCreate(generics.CreateAPIView):
     queryset = Banned.objects.all()
@@ -285,7 +263,7 @@ class BanCreate(generics.CreateAPIView):
             serializer.is_valid(raise_exception=True)
             validated_data = serializer.validated_data.get('product')
             if Banned.objects.filter(user=self.request.user, product=validated_data).exists():
-                raise serializers.ValidationError("This user has already banned this product.")
+               raise serializers.ValidationError("This user has already banned this product.")
             else:
                 serializer.save(user=self.request.user)
                 product_id = validated_data
