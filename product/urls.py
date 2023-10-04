@@ -14,6 +14,7 @@ urlpatterns = [
     path('product-detail/<pk>/', ProductDetailAPIView.as_view()),
     path('product-delete/<pk>/', ProductDestroyAPIView.as_view()),
     path('product-update/<pk>/', ProductUpdateAPIView.as_view()),
+    path('by/category/<pk>/', ProductByCategory.as_view()),
     path('cities/', CityViewSet.as_view(), name='cities'),
     path('district/<pk>/', DistrictViewSet.as_view(), name='districts'),
     path('comment/<pk>/', CommentList.as_view()),

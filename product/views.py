@@ -60,7 +60,6 @@ class ProductPagination(PageNumberPagination):
 
     
 class ProductViewSet(generics.ListAPIView):
-    
     queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
     serializer_class = ProductSerializer
     pagination_class = ProductPagination 
@@ -71,6 +70,26 @@ class ProductViewSet(generics.ListAPIView):
         'name': ['icontains', 'exact'], 
         'status': ['exact'],
     }
+    
+
+class ProductByCategory(generics.ListAPIView):
+    queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
+    serializer_class = ProductSerializer
+    pagination_class = ProductPagination 
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.filter(category__id=self.kwargs['pk'])
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    
+    
     
 class ProductUserListAPIView(generics.ListAPIView):
     queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
@@ -112,6 +131,32 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
         similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags')[:10]
         serializer1 = self.get_serializer(similar_posts, many=True)
         return Response({"detail": serializer.data, "same_prods": serializer1.data})
+
+class ProductUserListAPIView(generics.ListAPIView):
+    queryset = Product.objects.filter(is_deleted=False, is_active=True).order_by('-created_at')
+    serializer_class = ProductSerializer
+    pagination_class = ProductPagination 
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = {
+        'category': ['exact'],
+        'price':['exact', 'gt', 'gte', 'lt', 'lte'], 
+        'name': ['icontains', 'exact'], 
+        'status': ['exact'],
+    }
+    
+    def list(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            queryset = self.filter_queryset(self.get_queryset())
+            queryset=queryset.filter(user=self.request.user)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     
 
 class ProductDestroyAPIView(generics.DestroyAPIView):
