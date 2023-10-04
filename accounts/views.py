@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import CustomUser, Profile
 from uuid import uuid4
-from .serializers import RegisterSerializer, ProfileEditSerializer, UserEditSerializer, UserRetriveSerializer
+from .serializers import RegisterSerializer, UserEditSerializer, UserRetriveSerializer, UserSerializer
 from rest_framework import (
     generics, 
     permissions,
@@ -66,4 +66,15 @@ class UserEditAPIView(generics.UpdateAPIView):
             instance._prefetched_objects_cache = {}
 
         return response.Response(serializer.data)
+
+
+class UserDetailAPIView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_class = [permissions.IsAuthenticated]
     
+    def get_object(self):
+        user_id = self.request.user.id
+        return CustomUser.objects.filter(id=self.kwargs['pk']).prefetch_related('profile').first()
+
+

@@ -5,7 +5,7 @@ from .models import Category, Product, Comment, City, District, Ban, Banned
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
+    list_display = ['name', 'slug', 'parent']
     prepopulated_fields = {'slug': ('name',)}
 
 
