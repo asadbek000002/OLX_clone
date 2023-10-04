@@ -20,10 +20,15 @@ urlpatterns = [
     path('comment/<pk>/', CommentList.as_view()),
     path('comment-create/<pk>/', CommentCreateAPIView.as_view()),
     path('saved/', SavedAPIView.as_view(), name='saved'),
-    path('saved/delete/<int:id>/', SavedDeleteView.as_view(), name='delete'),
+    path('saved/delete/<pk>/', SavedDeleteView.as_view(), name='delete'),
     path('saved/list/', SavedListView.as_view (), name='list'),
     path('ban-list/', BanViewList.as_view()),
     path('ban-add/', BanCreate.as_view()),
+    
+    #kino
+    path('kino-list/', KinoListAPIView.as_view()),
+    path('kino-create/', KinoCreateAPIView.as_view()),
+    path('kino-detail/<pk>/', KinoDetailAPIView.as_view()),
     
 ]
 

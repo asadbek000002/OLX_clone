@@ -71,8 +71,8 @@ class CustomUser(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
     about = models.CharField(max_length=200, blank=True, null=True)
-    birth_date = models.DateField(blank=True)
-    skills = models.CharField(max_length=200)
+    birth_date = models.DateField(blank=True, null=True)
+    skills = models.CharField(max_length=200, blank=True, null=True)
     overview = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):

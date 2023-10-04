@@ -29,6 +29,7 @@ class UserRegisterView(generics.CreateAPIView):
             setattr(user, key, value)
         user.set_password(serializer.validated_data['password'])
         user.save()
+        Profile.objects.create(user=user)
         
 
 

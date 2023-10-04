@@ -12,10 +12,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.models import CustomUser
 
-from .models import Category, City, District, Product, Saved, Comment, Ban, Banned
+from .models import Category, City, District, Product, Saved, Comment, Ban, Banned, Kino
 
-from .serializers import ProductSerializer, SavedSerializer, CitySerializer,\
-                          DistrictSerializer, CommentSerializer, CommentCreateSerializer, BanSerializer, BanedSerializer
+from .serializers import ProductSerializer, SavedSerializer, CitySerializer, DistrictSerializer, \
+CommentSerializer, CommentCreateSerializer, BanSerializer, BanedSerializer, KinoSerializer
 from .serializers import CategorySerializer
 
 
@@ -261,34 +261,36 @@ class DistrictViewSet(generics.ListAPIView):
 class SavedListView(generics.ListAPIView):
     queryset = Saved.objects.all()
     serializer_class = SavedSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.filter(user=self.request.user)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class SavedDeleteView(generics.DestroyAPIView):
     queryset = Saved.objects.all()
     serializer_class = SavedSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if self.request.user.is_authenticated:
-            if instance.user == self.request.user:
-                instance.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
+    def perform_destroy(self, instance):
+        if instance.user == self.request.user:
+            instance.delete()
+            
 
 class SavedAPIView(generics.CreateAPIView):
     serializer_class = SavedSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
-        data = request.data
-
-        product = Product.objects.all(user=request.user)
-        data['product'] = product.pk
-        serializer = SavedSerializer(data = data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class BanViewList(generics.ListAPIView):
@@ -300,25 +302,41 @@ class BanViewList(generics.ListAPIView):
 class BanCreate(generics.CreateAPIView):
     queryset = Banned.objects.all()
     serializer_class = BanedSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            validated_data = serializer.validated_data.get('product')
-            if Banned.objects.filter(user=self.request.user, product=validated_data).exists():
-               raise serializers.ValidationError("This user has already banned this product.")
-            else:
-                serializer.save(user=self.request.user)
-                product_id = validated_data
-                ban_count = Ban.objects.filter(product__id=product_id).count()
-                if ban_count >= 10:
-                    product = Product.objects.get(id=product_id)
-                    product.is_banned = True
-                    product.save()
-                headers = self.get_success_headers(serializer.data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data.get('product')
+        serializer.save(user=self.request.user)
+        product_id = validated_data
+        ban_count = Ban.objects.filter(product__id=product_id).count()
+        if ban_count >= 10:
+            product = Product.objects.get(id=product_id)
+            product.is_banned = True
+            product.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
+    
+class KinoCreateAPIView(generics.CreateAPIView):
+    queryset = Kino.objects.all()
+    serializer_class = KinoSerializer
+    
+    
+       
+class KinoListAPIView(generics.ListAPIView):
+    queryset = Kino.objects.all()
+    serializer_class = KinoSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = {
+        'name': ['icontains', 'exact'], 
+    }
+    
+    
+class KinoDetailAPIView(generics.DestroyAPIView):
+    queryset = Kino.objects.all()
+    serializers = KinoSerializer
+    
 
 

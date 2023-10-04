@@ -105,4 +105,11 @@ class Banned(models.Model):
     ban = models.ForeignKey(Ban, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='bans')
+    
+    
+class Kino(models.Model):
+    name = models.CharField(max_length=250)
+    url = models.URLField()
+    
+    
 

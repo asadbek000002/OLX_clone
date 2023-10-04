@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import City, District
+from .models import City, District, Kino
 
 from .models import Category, Product, Saved, Comment, Ban, Banned
 
@@ -35,6 +35,11 @@ class SavedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saved
         fields = ('id', 'user', 'product', 'created_at')
+        extra_kwargs = {
+            'id': {'read_only': True,'required': False},
+            'user': {'read_only': True,'required': False},
+            'created_at': {'read_only': True,'required': False},
+        }
 
 
 class CitySerializer(serializers.ModelSerializer):
@@ -59,5 +64,12 @@ class BanedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Banned
         fields = ['comment', 'ban', 'product']
+        
+
+class KinoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Kino
+        fields = ['name', 'url']
+        
 
 
