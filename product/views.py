@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
+from django.utils.text import slugify
+from uuid import uuid4
 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -197,7 +199,10 @@ class ProductCreateAPIView(generics.CreateAPIView):
         if self.request.user.is_authenticated:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception = True)
-            serializer.save()
+            if serializer.validated_data['phone'] == '':
+                serializer.save(slug=slugify(str(uuid4())), phone=self.request.user.phone)
+            else:
+                serializer.save(slug=slugify(str(uuid4())))
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(status=status.HTTP_400_BAD_REQUEST)
