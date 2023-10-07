@@ -17,6 +17,9 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+        extra_kwargs = {
+            'slug': {'read_only': True, 'required': False},
+        }
 
 
 class CommentSerializer(serializers.ModelSerializer):

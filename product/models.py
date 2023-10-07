@@ -60,6 +60,8 @@ class Product(models.Model):
     created_at= models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
+    user_name = models.CharField(max_length=50,blank=True, null=True)
+    phone = models.CharField(max_length=13,blank=True, null=True)
 
     tags = TaggableManager()
 
