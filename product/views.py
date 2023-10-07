@@ -112,7 +112,7 @@ class ProductUserListAPIView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
             queryset = self.filter_queryset(self.get_queryset())
-            queryset=queryset.filter(user=self.request.user)
+            queryset=queryset.filter(user=self.request.user).select_related('user')
             page = self.paginate_queryset(queryset)
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
@@ -130,11 +130,12 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
     lookup_field = 'pk'
     
     def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
+        filter_kwargs = {'pk': self.kwargs[self.lookup_field]}
+        instance = self.queryset.filter(**filter_kwargs).select_related('user').first()
         serializer = self.get_serializer(instance)
         post_tags_ids = instance.tags.values_list('id', flat=True)
         similar_posts = self.queryset.filter(tags__in=post_tags_ids, category=instance.category).exclude(id=instance.id)
-        similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags')[:10]
+        similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-created_at')[:10]
         serializer1 = self.get_serializer(similar_posts, many=True)
         return Response({"detail": serializer.data, "same_prods": serializer1.data})
 
@@ -148,6 +149,7 @@ class ProductUserListAPIView(generics.ListAPIView):
         'price':['exact', 'gt', 'gte', 'lt', 'lte'], 
         'name': ['icontains', 'exact'], 
         'status': ['exact'],
+        'user': ['exact'],
     }
     
     def list(self, request, *args, **kwargs):
@@ -168,44 +170,43 @@ class ProductUserListAPIView(generics.ListAPIView):
 class ProductDestroyAPIView(generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if self.request.user.is_authenticated:
-            if instance.user == self.request.user:
-                instance.is_deleted = True
-                instance.save()
+        if instance.user == self.request.user:
+            instance.is_deleted = True
+            instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 class ProductUpdateAPIView(generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        if self.request.user.is_authenticated:
-            if instance.user ==self.request.user:
-                serializer = self.get_serializer(instance, data=request.data, partial=partial)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
+        if instance.user == self.request.user:
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=self.request.user)
         return Response(serializer.data)
 
 class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
     def create(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception = True)
-            if serializer.validated_data['phone'] == '':
-                serializer.save(slug=slugify(str(uuid4())), phone=self.request.user.phone)
-            else:
-                serializer.save(slug=slugify(str(uuid4())))
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception = True)
+        if serializer.validated_data['phone'] == '':
+            serializer.save(slug=slugify(str(uuid4())), phone=self.request.user.phone, user=self.request.user)
+        else:
+            serializer.save(slug=slugify(str(uuid4())), user=self.request.user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 

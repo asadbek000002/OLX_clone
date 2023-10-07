@@ -2,7 +2,9 @@ from rest_framework import serializers
 from .models import City, District, Kino
 
 from .models import Category, Product, Saved, Comment, Ban, Banned
-
+from accounts.serializers import (
+    ProductUserRetriveSerializer,
+)
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,11 +16,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    user = ProductUserRetriveSerializer(many=False)
     class Meta:
         model = Product
         fields = '__all__'
         extra_kwargs = {
             'slug': {'read_only': True, 'required': False},
+            'user': {'read_only': True, 'required': False},
         }
 
 

@@ -67,3 +67,8 @@ class UserSerializer(serializers.ModelSerializer):
             'phone': {'read_only': True}
         }
 
+
+class ProductUserRetriveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'phone', 'image', 'first_name', 'last_name')
