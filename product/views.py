@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 
-
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,11 +11,16 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.models import CustomUser
 
-from .models import Category, City, District, Product, Saved, Comment, Ban, Banned, Kino
+from .models import Category, City, District, \
+                    Product, Saved, Comment, \
+                    Ban, Banned, Kino
 
-from .serializers import ProductSerializer, SavedSerializer, CitySerializer, DistrictSerializer, \
-CommentSerializer, CommentCreateSerializer, BanSerializer, BanedSerializer, KinoSerializer
-from .serializers import CategorySerializer
+from .serializers import ProductSerializer, SavedSerializer, \
+                         CitySerializer, DistrictSerializer, \
+                         CommentSerializer, CommentCreateSerializer, \
+                         BanSerializer, BanedSerializer, KinoSerializer, \
+                         CategorySerializer, SavedListSerializer
+
 
 
 class CategoryList(generics.ListAPIView):
@@ -232,26 +236,25 @@ class CommentCreateAPIView(generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
 class CityViewSet(generics.ListAPIView):
     queryset = City.objects.all()
     serializer_class = CitySerializer
-    
+
 
 class DistrictViewSet(generics.ListAPIView):
     queryset = District.objects.all()
     serializer_class = DistrictSerializer
-    
+
     lookup_field = 'pk'
 
     def list(self, request, *args, **kwargs):
-        
         queryset = self.queryset
 
-
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        
-        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
-        
+
+        filter_kwargs = {'city': self.kwargs[lookup_url_kwarg]}
+
         queryset = queryset.filter(**filter_kwargs)
 
         serializer = self.get_serializer(queryset, many=True)
@@ -260,7 +263,7 @@ class DistrictViewSet(generics.ListAPIView):
 
 class SavedListView(generics.ListAPIView):
     queryset = Saved.objects.all()
-    serializer_class = SavedSerializer
+    serializer_class = SavedListSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def list(self, request, *args, **kwargs):
@@ -290,7 +293,9 @@ class SavedAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        new_obj = Saved.objects.filter(product=serializer.validated_data['product'], user=self.request.user)
+        if not new_obj:
+            serializer.save(user=self.request.user)
 
 
 class BanViewList(generics.ListAPIView):

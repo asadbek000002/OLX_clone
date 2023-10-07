@@ -17,6 +17,9 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+        extra_kwargs = {
+            'slug': {'read_only': True, 'required': False},
+        }
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -39,6 +42,19 @@ class SavedSerializer(serializers.ModelSerializer):
             'id': {'read_only': True,'required': False},
             'user': {'read_only': True,'required': False},
             'created_at': {'read_only': True,'required': False},
+        }
+
+
+class SavedListSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+
+    class Meta:
+        model = Saved
+        fields = ('id', 'user', 'product', 'created_at')
+        extra_kwargs = {
+            'id': {'read_only': True, 'required': False},
+            'user': {'read_only': True, 'required': False},
+            'created_at': {'read_only': True, 'required': False},
         }
 
 

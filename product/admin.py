@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Category, Product, Comment, City, District, Ban, Banned
+from .models import Category, Product, Comment, \
+                    City, District, Ban, Banned, Saved
 
 
 @admin.register(Category)
@@ -45,3 +46,8 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Banned)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['comment', 'ban', 'product', 'user']
+
+
+@admin.register(Saved)
+class SavedAdmin(admin.ModelAdmin):
+    list_display = ['product', 'user',]
